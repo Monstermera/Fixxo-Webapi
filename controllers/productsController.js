@@ -1,6 +1,5 @@
 const express = require('express')
 const controller = express.Router()
-// let products = require('../data/database')
 const productSchema = require('../schemas/productSchema')
 
 
@@ -72,7 +71,7 @@ controller.route('/:tag/:take').get(async (req, res) => {
     } else 
         res.status(404).json()
 })
-
+  
 
  // PRODUCT ARTICLE NUMBER
 controller.route('/product/details/:articleNumber').get(async (req, res) => {
@@ -93,7 +92,7 @@ controller.route('/product/details/:articleNumber').get(async (req, res) => {
         res.status(404).json()
 })
 
-// secured routes
+// POST
 controller.route('/').post(async (req, res) => {   
     const { tag, name, description, category, price, rating, imageName } = req.body
 
@@ -109,7 +108,7 @@ controller.route('/').post(async (req, res) => {
             name, 
             description,
             category,
-            price,
+            price, 
             rating,
             imageName
         })
@@ -120,10 +119,10 @@ controller.route('/').post(async (req, res) => {
     }
 }) 
 
-
+// DELETE
 controller.route ('/:articleNumber').delete(async (req, res) => {    
     if(!req.params.articleNumber)
-        res.status(400).json('No article number was specified.')
+        res.status(400).json('No article number was specified.') //måsvingar?
     else {
         const item = await productSchema.findById(req.params.articleNumber)
         if (item) {
@@ -137,26 +136,17 @@ controller.route ('/:articleNumber').delete(async (req, res) => {
 
 // PUT
 controller.route('/:articleNumber').put(async (req, res) => { 
-    // const product = await productSchema.findById(req.params.articleNumber)
-    //     if (!product) {
-    //         res.status(404).json({text: `The product with article number ${req.params.articleNumber} was not found`})
-    //     } else {
-    //         const updatedProduct = await productSchema.findByIdAndUpdate(req.params.articleNumber, req.body, {new: true})  
-    //             res.status(200).json({text: `The product with article number ${req.params.articleNumber} has been updated`})
-    //             console.log(updatedProduct)
-    //             }
-   
-    const articleNumber = req.params.articleNumber;
-    const updatedData = req.body; 
-    const options = { new: true }
+    if(!req.params.articleNumber) {
+        res.status(400).json('No article number was specified.')
+    }
+    console.log(req.params.articleNumber)
 
-    const product = await productSchema.findByIdAndUpdate(articleNumber, updatedData, options)
-    if (product)
-        res.status(200).json({text: `The product with article number ${req.params.articleNumber} has been updated`})
 
-    else 
-        res.status(404).json({text: `The product with article number ${req.params.articleNumber} was not found`})
+    const product = await productSchema.findByIdAndUpdate(req.params.articleNumber, req.body, {new: true})
+        if (!product) {
+            res.status(404).json({text: 'The product was not found'})
+        }
+        res.status(200).json(product)
 }) 
-
-
+ 
 module.exports = controller 
